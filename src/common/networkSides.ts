@@ -17,4 +17,8 @@ export const PLUGIN = Networker.createSide('Plugin-side').listens<{
     iconCandidates: number;
   }>;
   detectIcons(mode: DetectionMode): Promise<DetectIconsResponse>;
+  notify(
+    message: string,
+    options?: { error?: boolean; timeout?: number }
+  ): void;
 }>();

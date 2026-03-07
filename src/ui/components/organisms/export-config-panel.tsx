@@ -1,17 +1,24 @@
 import type {
   ColorMode,
+  ExportFormat,
   FileStructure,
   NamingConvention
 } from '@ui/store/useDetectionModeStore';
 
 type ExportConfigPanelProps = {
   selectedCount: number;
+  zipName: string;
   fileStructure: FileStructure;
   colorMode: ColorMode;
   namingConvention: NamingConvention;
+  exportFormat: ExportFormat;
+  includeTypes: boolean;
+  onZipNameChange: (value: string) => void;
   onFileStructureChange: (value: FileStructure) => void;
   onColorModeChange: (value: ColorMode) => void;
   onNamingConventionChange: (value: NamingConvention) => void;
+  onExportFormatChange: (value: ExportFormat) => void;
+  onIncludeTypesChange: (value: boolean) => void;
 };
 
 const FILE_STRUCTURE_OPTIONS: Array<{
@@ -22,12 +29,12 @@ const FILE_STRUCTURE_OPTIONS: Array<{
   {
     value: 'individual',
     label: 'Un archivo por ícono',
-    description: 'Cada ícono se exporta como un archivo SVG independiente.'
+    description: 'Cada ícono en su propio archivo.'
   },
   {
     value: 'single-file',
-    label: 'Todos en un solo archivo',
-    description: 'Todos los íconos se agrupan en un único archivo SVG sprite.'
+    label: 'Todos en un archivo',
+    description: 'SVG sprite o barrel file con todos los íconos.'
   }
 ];
 
@@ -39,13 +46,30 @@ const COLOR_MODE_OPTIONS: Array<{
   {
     value: 'preserve',
     label: 'Preservar colores',
-    description: 'Mantiene los colores originales del diseño en el SVG.'
+    description: 'Mantiene los colores originales del diseño.'
   },
   {
     value: 'currentColor',
     label: 'Usar currentColor',
-    description:
-      'Reemplaza los colores con currentColor para herencia CSS dinámica.'
+    description: 'Reemplaza colores para herencia CSS dinámica.'
+  }
+];
+
+const EXPORT_FORMAT_OPTIONS: Array<{
+  value: ExportFormat;
+  label: string;
+  description: string;
+}> = [
+  { value: 'svg', label: 'SVG', description: 'Archivos .svg puros.' },
+  {
+    value: 'typescript',
+    label: 'TypeScript',
+    description: 'Componentes React .tsx'
+  },
+  {
+    value: 'javascript',
+    label: 'JavaScript',
+    description: 'Componentes React .jsx'
   }
 ];
 
@@ -62,73 +86,125 @@ const NAMING_OPTIONS: Array<{
 
 export function ExportConfigPanel({
   selectedCount,
+  zipName,
   fileStructure,
   colorMode,
   namingConvention,
+  exportFormat,
+  includeTypes,
+  onZipNameChange,
   onFileStructureChange,
   onColorModeChange,
-  onNamingConventionChange
+  onNamingConventionChange,
+  onExportFormatChange,
+  onIncludeTypesChange
 }: ExportConfigPanelProps) {
   return (
     <div className="export-config-panel">
-      <div className="export-config-panel__summary">
+      {/* Resumen */}
+      <p className="export-config-panel__summary">
         <span className="export-config-panel__summary-count">
           {selectedCount}
-        </span>
-        <span className="export-config-panel__summary-label">
-          {selectedCount === 1 ? 'ícono seleccionado' : 'íconos seleccionados'}
-        </span>
+        </span>{' '}
+        {selectedCount === 1 ? 'ícono seleccionado' : 'íconos seleccionados'}
+      </p>
+
+      {/* Nombre del export */}
+      <div className="export-config-panel__section">
+        <p className="export-config-panel__section-title">Nombre del archivo</p>
+        <input
+          type="text"
+          className="export-config-input"
+          value={zipName}
+          onChange={e => onZipNameChange(e.target.value)}
+          placeholder="icons"
+          spellCheck={false}
+        />
+      </div>
+
+      {/* Formato de exportación */}
+      <div className="export-config-panel__section">
+        <p className="export-config-panel__section-title">Formato</p>
+        <div className="export-config-panel__options">
+          {EXPORT_FORMAT_OPTIONS.map(option => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onExportFormatChange(option.value)}
+              className={`config-option ${exportFormat === option.value ? 'config-option--selected' : ''}`}
+            >
+              <span className="config-option__label">{option.label}</span>
+              <span className="config-option__description">
+                {option.description}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {exportFormat === 'typescript' && (
+          <label className="export-config-toggle">
+            <input
+              type="checkbox"
+              className="export-config-toggle__input"
+              checked={includeTypes}
+              onChange={e => onIncludeTypesChange(e.target.checked)}
+            />
+            <span className="export-config-toggle__label">
+              Incluir definición de tipos (Props interface)
+            </span>
+          </label>
+        )}
       </div>
 
       {/* Estructura de archivos */}
-      <fieldset className="export-config-panel__group">
-        <legend className="export-config-panel__group-title">
+      <div className="export-config-panel__section">
+        <p className="export-config-panel__section-title">
           Estructura de archivos
-        </legend>
+        </p>
         <div className="export-config-panel__options">
           {FILE_STRUCTURE_OPTIONS.map(option => (
             <button
               key={option.value}
               type="button"
               onClick={() => onFileStructureChange(option.value)}
-              className={`export-option ${fileStructure === option.value ? 'export-option--selected' : ''}`}
+              className={`config-option ${fileStructure === option.value ? 'config-option--selected' : ''}`}
             >
-              <span className="export-option__label">{option.label}</span>
-              <span className="export-option__description">
+              <span className="config-option__label">{option.label}</span>
+              <span className="config-option__description">
                 {option.description}
               </span>
             </button>
           ))}
         </div>
-      </fieldset>
+      </div>
 
       {/* Modo de color */}
-      <fieldset className="export-config-panel__group">
-        <legend className="export-config-panel__group-title">
+      <div className="export-config-panel__section">
+        <p className="export-config-panel__section-title">
           Tratamiento de color
-        </legend>
+        </p>
         <div className="export-config-panel__options">
           {COLOR_MODE_OPTIONS.map(option => (
             <button
               key={option.value}
               type="button"
               onClick={() => onColorModeChange(option.value)}
-              className={`export-option ${colorMode === option.value ? 'export-option--selected' : ''}`}
+              className={`config-option ${colorMode === option.value ? 'config-option--selected' : ''}`}
             >
-              <span className="export-option__label">{option.label}</span>
-              <span className="export-option__description">
+              <span className="config-option__label">{option.label}</span>
+              <span className="config-option__description">
                 {option.description}
               </span>
             </button>
           ))}
         </div>
-      </fieldset>
+      </div>
 
       {/* Convención de nombres */}
-      <fieldset className="export-config-panel__group">
-        <legend className="export-config-panel__group-title">
+      <div className="export-config-panel__section">
+        <p className="export-config-panel__section-title">
           Convención de nombres
-        </legend>
+        </p>
         <div className="export-config-panel__naming-grid">
           {NAMING_OPTIONS.map(option => (
             <button
@@ -142,7 +218,7 @@ export function ExportConfigPanel({
             </button>
           ))}
         </div>
-      </fieldset>
+      </div>
     </div>
   );
 }

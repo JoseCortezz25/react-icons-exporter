@@ -12,26 +12,36 @@ export function InitialDetectionPage() {
     state => state.setDetectionResults
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleStart = async (selectedMode: DetectionMode) => {
     setIsLoading(true);
-    setError(null);
 
     try {
       const result = await UI_CHANNEL.request(PLUGIN, 'detectIcons', [
         selectedMode
       ]);
+
+      if (result.icons.length === 0) {
+        UI_CHANNEL.request(PLUGIN, 'notify', [
+          'No se encontraron íconos con el modo seleccionado',
+          { error: true }
+        ]);
+      } else {
+        UI_CHANNEL.request(PLUGIN, 'notify', [
+          `${result.icons.length} íconos detectados correctamente`
+        ]);
+      }
+
       setDetectionResults(result);
     } catch (err) {
       const fallbackMessage =
         'No se pudo iniciar la detección de iconos con el modo elegido.';
+      const message =
+        err instanceof NetworkError
+          ? err.message || fallbackMessage
+          : fallbackMessage;
 
-      if (err instanceof NetworkError) {
-        setError(err.message || fallbackMessage);
-      } else {
-        setError(fallbackMessage);
-      }
+      UI_CHANNEL.request(PLUGIN, 'notify', [message, { error: true }]);
     } finally {
       setIsLoading(false);
     }
@@ -40,7 +50,6 @@ export function InitialDetectionPage() {
   return (
     <InitialViewTemplate>
       <DetectionModeSelector onStart={handleStart} isLoading={isLoading} />
-      {error && <p className="mode-selector__error">{error}</p>}
     </InitialViewTemplate>
   );
 }
