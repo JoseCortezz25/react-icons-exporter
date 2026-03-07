@@ -2,11 +2,9 @@ import { DetectedIconsPanel } from '@ui/components/organisms/detected-icons-pane
 import { InitialViewTemplate } from '@ui/components/templates/initial-view-template';
 import { Button } from '@ui/components/ui/button';
 import { useDetectionModeStore } from '@ui/store/useDetectionModeStore';
-import { useMemo, useState } from 'react';
 
 export function IconsReviewPage() {
   const {
-    mode,
     detectedIcons,
     groupedCount,
     selectedIconIds,
@@ -16,15 +14,13 @@ export function IconsReviewPage() {
     goToInitial
   } = useDetectionModeStore();
 
-  const [infoMessage, setInfoMessage] = useState<string | null>(null);
+  const goToExportConfig = useDetectionModeStore(
+    state => state.goToExportConfig
+  );
 
   const selectedCount = selectedIconIds.length;
   const allSelected =
     detectedIcons.length > 0 && selectedCount === detectedIcons.length;
-
-  const detectionScopeLabel = useMemo(() => {
-    return mode === 'selection' ? 'selección activa' : 'página completa';
-  }, [mode]);
 
   const handleToggleSelectAll = () => {
     if (allSelected) {
@@ -36,9 +32,7 @@ export function IconsReviewPage() {
   };
 
   const handleExport = () => {
-    setInfoMessage(
-      `Preparados ${selectedCount} íconos de ${detectionScopeLabel} para exportación.`
-    );
+    goToExportConfig();
   };
 
   return (
@@ -90,9 +84,6 @@ export function IconsReviewPage() {
           </Button>
         </div>
 
-        {infoMessage && (
-          <p className="icons-review-page__info">{infoMessage}</p>
-        )}
       </section>
     </InitialViewTemplate>
   );

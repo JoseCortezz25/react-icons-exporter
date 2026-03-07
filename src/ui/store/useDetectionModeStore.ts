@@ -6,7 +6,11 @@ import type {
   DetectionMode
 } from '@common/iconDetection.types';
 
-type DetectionStep = 'initial' | 'icons-review';
+type DetectionStep = 'initial' | 'icons-review' | 'export-config';
+
+export type FileStructure = 'individual' | 'single-file';
+export type ColorMode = 'preserve' | 'currentColor';
+export type NamingConvention = 'PascalCase' | 'camelCase' | 'snake_case' | 'kebab-case';
 
 type DetectionModeState = {
   mode: DetectionMode | null;
@@ -14,12 +18,19 @@ type DetectionModeState = {
   detectedIcons: DetectedIcon[];
   groupedCount: number;
   selectedIconIds: string[];
+  fileStructure: FileStructure;
+  colorMode: ColorMode;
+  namingConvention: NamingConvention;
   setMode: (mode: DetectionMode) => void;
   setDetectionResults: (payload: DetectIconsResponse) => void;
   toggleIconSelection: (iconId: string) => void;
   selectAllIcons: () => void;
   clearSelectedIcons: () => void;
   goToInitial: () => void;
+  goToExportConfig: () => void;
+  setFileStructure: (value: FileStructure) => void;
+  setColorMode: (value: ColorMode) => void;
+  setNamingConvention: (value: NamingConvention) => void;
   reset: () => void;
 };
 
@@ -29,6 +40,9 @@ export const useDetectionModeStore = create<DetectionModeState>(set => ({
   detectedIcons: [],
   groupedCount: 0,
   selectedIconIds: [],
+  fileStructure: 'individual',
+  colorMode: 'preserve',
+  namingConvention: 'PascalCase',
   setMode: mode => set({ mode }),
   setDetectionResults: payload =>
     set({
@@ -60,12 +74,19 @@ export const useDetectionModeStore = create<DetectionModeState>(set => ({
       groupedCount: 0,
       selectedIconIds: []
     }),
+  goToExportConfig: () => set({ step: 'export-config' }),
+  setFileStructure: value => set({ fileStructure: value }),
+  setColorMode: value => set({ colorMode: value }),
+  setNamingConvention: value => set({ namingConvention: value }),
   reset: () =>
     set({
       mode: null,
       step: 'initial',
       detectedIcons: [],
       groupedCount: 0,
-      selectedIconIds: []
+      selectedIconIds: [],
+      fileStructure: 'individual',
+      colorMode: 'preserve',
+      namingConvention: 'PascalCase'
     })
 }));
