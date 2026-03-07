@@ -65,6 +65,18 @@ function dedupeNodesById(nodes: readonly SceneNode[]): SceneNode[] {
   return Array.from(uniqueNodes.values());
 }
 
+function removeCoveredChildren(candidates: SceneNode[]): SceneNode[] {
+  const ids = new Set(candidates.map(n => n.id));
+  return candidates.filter(node => {
+    let ancestor = node.parent;
+    while (ancestor && ancestor.type !== 'PAGE') {
+      if (ids.has(ancestor.id)) return false;
+      ancestor = ancestor.parent;
+    }
+    return true;
+  });
+}
+
 function collectSelectionCandidates(): SceneNode[] {
   const selectedNodes = figma.currentPage.selection;
 
@@ -84,12 +96,12 @@ function collectSelectionCandidates(): SceneNode[] {
     }
   }
 
-  return dedupeNodesById(candidates);
+  return removeCoveredChildren(dedupeNodesById(candidates));
 }
 
 function collectPageCandidates(): SceneNode[] {
   const candidates = figma.currentPage.findAll(node => isLikelySvgIcon(node));
-  return dedupeNodesById(candidates);
+  return removeCoveredChildren(dedupeNodesById(candidates));
 }
 
 function hasGroupAncestor(node: SceneNode): boolean {
