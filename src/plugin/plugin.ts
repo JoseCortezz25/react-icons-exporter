@@ -7,23 +7,13 @@ async function bootstrap() {
 
   if (figma.editorType === 'figma') {
     figma.showUI(__html__, {
-      width: 400,
+      width: 450,
       height: 650,
-      title: 'My Figma Plugin!'
-    });
-  } else if (figma.editorType === 'figjam') {
-    figma.showUI(__html__, {
-      width: 400,
-      height: 650,
-      title: 'My FigJam Plugin!'
+      title: 'React Icons Exporter'
     });
   }
 
-  console.log('Bootstrapped @', Networker.getCurrentSide().name);
-
   PLUGIN_CHANNEL.emit(UI, 'hello', ['Hey there, UI!']);
-
-  setInterval(() => PLUGIN_CHANNEL.emit(UI, 'ping', []), 5000);
 }
 
 bootstrap();

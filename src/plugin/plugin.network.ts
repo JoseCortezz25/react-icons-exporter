@@ -33,7 +33,13 @@ function hasChildren(node: SceneNode): node is SceneNode & ChildrenMixin {
   return typeof (node as SceneNode & ChildrenMixin).findAll === 'function';
 }
 
-function isLikelySvgIcon(node: SceneNode): boolean {
+function hasSceneChildren(
+  node: SceneNode
+): node is SceneNode & ChildrenMixin & { children: readonly SceneNode[] } {
+  return 'children' in node;
+}
+
+function isLikelySvgSeed(node: SceneNode): boolean {
   if (!isExportableNode(node) || !node.visible) {
     return false;
   }
@@ -51,6 +57,55 @@ function isLikelySvgIcon(node: SceneNode): boolean {
   }
 
   return VECTOR_NODE_TYPES.has(node.type) || hasIconLikeName;
+}
+
+function isSceneNode(node: BaseNode): node is SceneNode {
+  return 'visible' in node;
+}
+
+function isEligibleIconContainer(node: SceneNode): boolean {
+  if (!isExportableNode(node) || !node.visible || !canMeasureNode(node)) {
+    return false;
+  }
+
+  if (node.type === 'TEXT') {
+    return false;
+  }
+
+  const isCompact =
+    node.width > 0 &&
+    node.height > 0 &&
+    node.width <= 256 &&
+    node.height <= 256;
+
+  if (!isCompact) {
+    return false;
+  }
+
+  if (!hasSceneChildren(node)) {
+    return true;
+  }
+
+  if (node.children.length > 24) {
+    return false;
+  }
+
+  return !node.children.some(child => child.type === 'TEXT' && child.visible);
+}
+
+function promoteToIconContainer(seed: SceneNode): SceneNode {
+  let currentBest = seed;
+  let parent: BaseNode | null = seed.parent;
+
+  while (parent && parent.type !== 'PAGE') {
+    if (isSceneNode(parent) && isEligibleIconContainer(parent)) {
+      currentBest = parent;
+    }
+
+    parent = parent.parent;
+  }
+
+  return currentBest;
 }
 
 function dedupeNodesById(nodes: readonly SceneNode[]): SceneNode[] {
@@ -87,12 +142,16 @@ function collectSelectionCandidates(): SceneNode[] {
   const candidates: SceneNode[] = [];
 
   for (const node of selectedNodes) {
-    if (isLikelySvgIcon(node)) {
-      candidates.push(node);
+    if (isLikelySvgSeed(node)) {
+      candidates.push(promoteToIconContainer(node));
     }
 
     if (hasChildren(node)) {
-      candidates.push(...node.findAll(child => isLikelySvgIcon(child)));
+      candidates.push(
+        ...node
+          .findAll(child => isLikelySvgSeed(child))
+          .map(child => promoteToIconContainer(child))
+      );
     }
   }
 
@@ -100,7 +159,9 @@ function collectSelectionCandidates(): SceneNode[] {
 }
 
 function collectPageCandidates(): SceneNode[] {
-  const candidates = figma.currentPage.findAll(node => isLikelySvgIcon(node));
+  const candidates = figma.currentPage
+    .findAll(node => isLikelySvgSeed(node))
+    .map(node => promoteToIconContainer(node));
   return removeCoveredChildren(dedupeNodesById(candidates));
 }
 
