@@ -1,32 +1,70 @@
+import { PLUGIN } from '@common/networkSides';
+import { UI_CHANNEL } from '@ui/app.network';
 import { ExportConfigPanel } from '@ui/components/organisms/export-config-panel';
 import { InitialViewTemplate } from '@ui/components/templates/initial-view-template';
 import { Button } from '@ui/components/ui/button';
+import { downloadAsZip, generateExportFiles } from '@ui/lib/exportUtils';
 import { useDetectionModeStore } from '@ui/store/useDetectionModeStore';
 import { useState } from 'react';
 
 export function ExportConfigPage() {
   const {
+    detectedIcons,
     selectedIconIds,
     fileStructure,
     colorMode,
     namingConvention,
+    exportFormat,
+    includeTypes,
+    zipName,
     setFileStructure,
     setColorMode,
     setNamingConvention,
-    reset
+    setExportFormat,
+    setIncludeTypes,
+    setZipName,
+    goToSuccess
   } = useDetectionModeStore();
 
-  const [exported, setExported] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const selectedCount = selectedIconIds.length;
 
-  const handleExport = () => {
-    // TODO: trigger actual export via plugin channel
-    setExported(true);
-  };
-
   const handleBack = () => {
     useDetectionModeStore.setState({ step: 'icons-review' });
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+
+    try {
+      const selectedIcons = detectedIcons.filter(icon =>
+        selectedIconIds.includes(icon.id)
+      );
+
+      const files = generateExportFiles(selectedIcons, {
+        fileStructure,
+        colorMode,
+        namingConvention,
+        exportFormat,
+        includeTypes
+      });
+
+      await downloadAsZip(files, zipName || 'icons');
+
+      UI_CHANNEL.request(PLUGIN, 'notify', [
+        `${selectedIcons.length} íconos exportados correctamente`
+      ]);
+
+      goToSuccess(selectedIcons.length);
+    } catch {
+      UI_CHANNEL.request(PLUGIN, 'notify', [
+        'Error al generar el archivo de exportación',
+        { error: true }
+      ]);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -52,53 +90,28 @@ export function ExportConfigPage() {
 
         <ExportConfigPanel
           selectedCount={selectedCount}
+          zipName={zipName}
           fileStructure={fileStructure}
           colorMode={colorMode}
           namingConvention={namingConvention}
+          exportFormat={exportFormat}
+          includeTypes={includeTypes}
+          onZipNameChange={setZipName}
           onFileStructureChange={setFileStructure}
           onColorModeChange={setColorMode}
           onNamingConventionChange={setNamingConvention}
+          onExportFormatChange={setExportFormat}
+          onIncludeTypesChange={setIncludeTypes}
         />
 
-        <div className="export-config-page__actions">
-          <Button
-            type="button"
-            onClick={handleExport}
-            className="export-config-page__export-btn"
-            disabled={selectedCount === 0 || exported}
-          >
-            {exported
-              ? '¡Exportación lista!'
-              : `Exportar ${selectedCount} ${selectedCount === 1 ? 'ícono' : 'íconos'}`}
-          </Button>
-
-          {exported && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={reset}
-              className="export-config-page__restart-btn"
-            >
-              Nueva exportación
-            </Button>
-          )}
-        </div>
-
-        {exported && (
-          <p className="export-config-page__success">
-            {selectedCount}{' '}
-            {selectedCount === 1 ? 'ícono exportado' : 'íconos exportados'} con
-            éxito usando <strong>{namingConvention}</strong>,{' '}
-            {fileStructure === 'individual'
-              ? 'un archivo por ícono'
-              : 'en un solo archivo'}{' '}
-            y colores en modo{' '}
-            <strong>
-              {colorMode === 'preserve' ? 'preservado' : 'currentColor'}
-            </strong>
-            .
-          </p>
-        )}
+        <Button
+          type="button"
+          onClick={handleExport}
+          className="export-config-page__export-btn"
+          disabled={selectedCount === 0 || isExporting}
+        >
+          {isExporting ? 'Exportando…' : 'Exportar ahora'}
+        </Button>
       </section>
     </InitialViewTemplate>
   );

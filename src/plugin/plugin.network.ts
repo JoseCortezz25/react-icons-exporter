@@ -223,3 +223,7 @@ PLUGIN_CHANNEL.registerMessageHandler('analyzeCurrentPage', async () => {
 PLUGIN_CHANNEL.registerMessageHandler('detectIcons', async mode => {
   return detectIcons(mode);
 });
+
+PLUGIN_CHANNEL.registerMessageHandler('notify', (message, options) => {
+  figma.notify(message, options);
+});
