@@ -1,6 +1,7 @@
 import { SectionHeading } from '@ui/components/atoms/section-heading';
 import { DetectionModeOption } from '@ui/components/molecules/detection-mode-option';
 import { Button } from '@ui/components/ui/button';
+import { messages } from '@ui/messages';
 import { useDetectionModeStore } from '@ui/store/useDetectionModeStore';
 import type { DetectionMode } from '@ui/types/detectionMode';
 
@@ -16,14 +17,13 @@ const modeOptions: Array<{
 }> = [
   {
     mode: 'selection',
-    title: 'Selección',
-    description: 'Detecta iconos desde la selección activa del lienzo.'
+    title: messages.detectionModeSelector.options.selection.title,
+    description: messages.detectionModeSelector.options.selection.description
   },
   {
     mode: 'page-analysis',
-    title: 'Análisis de página completa',
-    description:
-      'Escanea todos los nodos de la página para encontrar candidatos.'
+    title: messages.detectionModeSelector.options.pageAnalysis.title,
+    description: messages.detectionModeSelector.options.pageAnalysis.description
   }
 ];
 
@@ -42,9 +42,9 @@ export function DetectionModeSelector({
   return (
     <section className="mode-selector">
       <SectionHeading
-        label="React Icons Exporter"
-        title="Modo de detección inicial"
-        subtitle="Elige cómo quieres que empecemos a detectar iconos en tu archivo."
+        label={messages.detectionModeSelector.heading.label}
+        title={messages.detectionModeSelector.heading.title}
+        subtitle={messages.detectionModeSelector.heading.subtitle}
       />
 
       <div className="mode-selector__grid">
@@ -66,7 +66,9 @@ export function DetectionModeSelector({
         disabled={!mode || isLoading}
         className="mode-selector__start-btn"
       >
-        {isLoading ? 'Iniciando...' : 'Comenzar detección'}
+        {isLoading
+          ? messages.detectionModeSelector.actions.starting
+          : messages.detectionModeSelector.actions.startDetection}
       </Button>
     </section>
   );

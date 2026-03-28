@@ -4,6 +4,7 @@ import { ExportConfigPanel } from '@ui/components/organisms/export-config-panel'
 import { InitialViewTemplate } from '@ui/components/templates/initial-view-template';
 import { Button } from '@ui/components/ui/button';
 import { downloadAsZip, generateExportFiles } from '@ui/lib/exportUtils';
+import { messages } from '@ui/messages';
 import { useDetectionModeStore } from '@ui/store/useDetectionModeStore';
 import { useState } from 'react';
 
@@ -50,16 +51,21 @@ export function ExportConfigPage() {
         includeTypes
       });
 
-      await downloadAsZip(files, zipName || 'icons');
+      await downloadAsZip(
+        files,
+        zipName || messages.exportSuccessPage.defaultZipName
+      );
 
       UI_CHANNEL.request(PLUGIN, 'notify', [
-        `${selectedIcons.length} íconos exportados correctamente`
+        messages.exportConfigPage.notifications.exportSuccess(
+          selectedIcons.length
+        )
       ]);
 
       goToSuccess(selectedIcons.length);
     } catch {
       UI_CHANNEL.request(PLUGIN, 'notify', [
-        'Error al generar el archivo de exportación',
+        messages.exportConfigPage.notifications.exportError,
         { error: true }
       ]);
     } finally {
@@ -72,9 +78,11 @@ export function ExportConfigPage() {
       <section className="export-config-page">
         <header className="export-config-page__header">
           <div>
-            <p className="export-config-page__label">Paso 3 de 3</p>
+            <p className="export-config-page__label">
+              {messages.exportConfigPage.heading.step}
+            </p>
             <h2 className="export-config-page__title">
-              Configura la exportación
+              {messages.exportConfigPage.heading.title}
             </h2>
           </div>
 
@@ -84,7 +92,7 @@ export function ExportConfigPage() {
             onClick={handleBack}
             className="export-config-page__back-btn"
           >
-            Volver
+            {messages.exportConfigPage.actions.back}
           </Button>
         </header>
 
@@ -110,7 +118,9 @@ export function ExportConfigPage() {
           className="export-config-page__export-btn"
           disabled={selectedCount === 0 || isExporting}
         >
-          {isExporting ? 'Exportando…' : 'Exportar ahora'}
+          {isExporting
+            ? messages.exportConfigPage.actions.exporting
+            : messages.exportConfigPage.actions.exportNow}
         </Button>
       </section>
     </InitialViewTemplate>

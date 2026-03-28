@@ -1,6 +1,7 @@
 import { DetectedIconsPanel } from '@ui/components/organisms/detected-icons-panel';
 import { InitialViewTemplate } from '@ui/components/templates/initial-view-template';
 import { Button } from '@ui/components/ui/button';
+import { messages } from '@ui/messages';
 import { useDetectionModeStore } from '@ui/store/useDetectionModeStore';
 
 export function IconsReviewPage() {
@@ -40,9 +41,11 @@ export function IconsReviewPage() {
       <section className="icons-review-page">
         <header className="icons-review-page__header">
           <div>
-            <p className="icons-review-page__label">Listado detectado</p>
+            <p className="icons-review-page__label">
+              {messages.iconsReviewPage.heading.label}
+            </p>
             <h2 className="icons-review-page__title">
-              Selecciona los SVG a exportar
+              {messages.iconsReviewPage.heading.title}
             </h2>
           </div>
 
@@ -52,7 +55,7 @@ export function IconsReviewPage() {
             onClick={goToInitial}
             className="icons-review-page__mode-btn"
           >
-            Cambiar modo
+            {messages.iconsReviewPage.actions.changeMode}
           </Button>
         </header>
 
@@ -71,7 +74,9 @@ export function IconsReviewPage() {
             className="icons-review-page__secondary-btn"
             disabled={detectedIcons.length === 0}
           >
-            {allSelected ? 'Deseleccionar todos' : 'Seleccionar todos'}
+            {allSelected
+              ? messages.iconsReviewPage.actions.deselectAll
+              : messages.iconsReviewPage.actions.selectAll}
           </Button>
 
           <Button
@@ -80,10 +85,9 @@ export function IconsReviewPage() {
             className="icons-review-page__primary-btn"
             disabled={selectedCount === 0}
           >
-            Exportar seleccionados ({selectedCount})
+            {messages.iconsReviewPage.actions.exportSelected(selectedCount)}
           </Button>
         </div>
-
       </section>
     </InitialViewTemplate>
   );

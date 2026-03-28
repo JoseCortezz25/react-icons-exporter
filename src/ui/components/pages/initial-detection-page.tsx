@@ -2,6 +2,7 @@ import { PLUGIN } from '@common/networkSides';
 import { UI_CHANNEL } from '@ui/app.network';
 import { DetectionModeSelector } from '@ui/components/organisms/detection-mode-selector';
 import { InitialViewTemplate } from '@ui/components/templates/initial-view-template';
+import { messages } from '@ui/messages';
 import { useDetectionModeStore } from '@ui/store/useDetectionModeStore';
 import type { DetectionMode } from '@ui/types/detectionMode';
 import { NetworkError } from 'monorepo-networker';
@@ -23,19 +24,21 @@ export function InitialDetectionPage() {
 
       if (result.icons.length === 0) {
         UI_CHANNEL.request(PLUGIN, 'notify', [
-          'No se encontraron íconos con el modo seleccionado',
+          messages.initialDetectionPage.notifications.noIconsFound,
           { error: true }
         ]);
       } else {
         UI_CHANNEL.request(PLUGIN, 'notify', [
-          `${result.icons.length} íconos detectados correctamente`
+          messages.initialDetectionPage.notifications.iconsDetected(
+            result.icons.length
+          )
         ]);
       }
 
       setDetectionResults(result);
     } catch (err) {
       const fallbackMessage =
-        'No se pudo iniciar la detección de iconos con el modo elegido.';
+        messages.initialDetectionPage.notifications.detectionStartFailed;
       const message =
         err instanceof NetworkError
           ? err.message || fallbackMessage

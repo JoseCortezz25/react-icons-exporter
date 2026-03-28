@@ -1,6 +1,6 @@
 // https://www.figma.com/plugin-docs/manifest/
 export default {
-  name: 'React Icons Exporter',
+  name: 'Icons to React',
   id: '1612159383801445987',
   api: '1.0.0',
   main: 'plugin.js',

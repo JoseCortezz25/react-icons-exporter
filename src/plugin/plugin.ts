@@ -9,7 +9,7 @@ async function bootstrap() {
     figma.showUI(__html__, {
       width: 450,
       height: 650,
-      title: 'React Icons Exporter'
+      title: 'Icons to React'
     });
   }
 
