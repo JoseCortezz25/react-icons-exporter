@@ -1,4 +1,5 @@
 import type { DetectedIcon } from '@common/iconDetection.types';
+import { messages } from '@ui/messages';
 
 type DetectedIconItemProps = {
   icon: DetectedIcon;
@@ -23,7 +24,7 @@ export function DetectedIconItem({
       <div className="detected-icon-item__preview-wrap">
         <img
           src={icon.preview}
-          alt={`Vista previa de ${icon.name}`}
+          alt={messages.detectedIconItem.previewAlt(icon.name)}
           className="detected-icon-item__preview"
         />
       </div>
@@ -31,7 +32,9 @@ export function DetectedIconItem({
       <div className="detected-icon-item__meta">
         <p className="detected-icon-item__name">{icon.name}</p>
         <p className="detected-icon-item__tag">
-          {icon.isInGroup ? 'Dentro de grupo' : 'Nodo individual'}
+          {icon.isInGroup
+            ? messages.detectedIconItem.tags.inGroup
+            : messages.detectedIconItem.tags.standaloneNode}
         </p>
       </div>
     </label>

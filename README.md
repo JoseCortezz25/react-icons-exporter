@@ -1,8 +1,8 @@
-# React Icons Exporter
+# Icons to React
 
 Figma plugin to detect SVG icons and export them as raw SVG files or React components (`.tsx` / `.jsx`) inside a `.zip` package.
 
-![React Icons Exporter preview](.github/assets/preview.png)
+![Icons to React preview](.github/assets/preview.png)
 
 ## Quick Overview
 

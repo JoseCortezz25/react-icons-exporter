@@ -4,6 +4,7 @@ import type {
   FileStructure,
   NamingConvention
 } from '@ui/store/useDetectionModeStore';
+import { messages } from '@ui/messages';
 
 type ExportConfigPanelProps = {
   selectedCount: number;
@@ -28,13 +29,15 @@ const FILE_STRUCTURE_OPTIONS: Array<{
 }> = [
   {
     value: 'individual',
-    label: 'Un archivo por ícono',
-    description: 'Cada ícono en su propio archivo.'
+    label: messages.exportConfigPanel.options.fileStructure.individual.label,
+    description:
+      messages.exportConfigPanel.options.fileStructure.individual.description
   },
   {
     value: 'single-file',
-    label: 'Todos en un archivo',
-    description: 'SVG sprite o barrel file con todos los íconos.'
+    label: messages.exportConfigPanel.options.fileStructure.singleFile.label,
+    description:
+      messages.exportConfigPanel.options.fileStructure.singleFile.description
   }
 ];
 
@@ -45,13 +48,15 @@ const COLOR_MODE_OPTIONS: Array<{
 }> = [
   {
     value: 'preserve',
-    label: 'Preservar colores',
-    description: 'Mantiene los colores originales del diseño.'
+    label: messages.exportConfigPanel.options.colorMode.preserve.label,
+    description:
+      messages.exportConfigPanel.options.colorMode.preserve.description
   },
   {
     value: 'currentColor',
-    label: 'Usar currentColor',
-    description: 'Reemplaza colores para herencia CSS dinámica.'
+    label: messages.exportConfigPanel.options.colorMode.currentColor.label,
+    description:
+      messages.exportConfigPanel.options.colorMode.currentColor.description
   }
 ];
 
@@ -60,16 +65,22 @@ const EXPORT_FORMAT_OPTIONS: Array<{
   label: string;
   description: string;
 }> = [
-  { value: 'svg', label: 'SVG', description: 'Archivos .svg puros.' },
+  {
+    value: 'svg',
+    label: messages.exportConfigPanel.options.exportFormat.svg.label,
+    description: messages.exportConfigPanel.options.exportFormat.svg.description
+  },
   {
     value: 'typescript',
-    label: 'TypeScript',
-    description: 'Componentes React .tsx'
+    label: messages.exportConfigPanel.options.exportFormat.typescript.label,
+    description:
+      messages.exportConfigPanel.options.exportFormat.typescript.description
   },
   {
     value: 'javascript',
-    label: 'JavaScript',
-    description: 'Componentes React .jsx'
+    label: messages.exportConfigPanel.options.exportFormat.javascript.label,
+    description:
+      messages.exportConfigPanel.options.exportFormat.javascript.description
   }
 ];
 
@@ -78,10 +89,30 @@ const NAMING_OPTIONS: Array<{
   label: string;
   preview: string;
 }> = [
-  { value: 'PascalCase', label: 'PascalCase', preview: 'ArrowRight' },
-  { value: 'camelCase', label: 'camelCase', preview: 'arrowRight' },
-  { value: 'snake_case', label: 'snake_case', preview: 'arrow_right' },
-  { value: 'kebab-case', label: 'kebab-case', preview: 'arrow-right' }
+  {
+    value: 'PascalCase',
+    label: messages.exportConfigPanel.options.namingConvention.pascalCase.label,
+    preview:
+      messages.exportConfigPanel.options.namingConvention.pascalCase.preview
+  },
+  {
+    value: 'camelCase',
+    label: messages.exportConfigPanel.options.namingConvention.camelCase.label,
+    preview:
+      messages.exportConfigPanel.options.namingConvention.camelCase.preview
+  },
+  {
+    value: 'snake_case',
+    label: messages.exportConfigPanel.options.namingConvention.snakeCase.label,
+    preview:
+      messages.exportConfigPanel.options.namingConvention.snakeCase.preview
+  },
+  {
+    value: 'kebab-case',
+    label: messages.exportConfigPanel.options.namingConvention.kebabCase.label,
+    preview:
+      messages.exportConfigPanel.options.namingConvention.kebabCase.preview
+  }
 ];
 
 export function ExportConfigPanel({
@@ -101,30 +132,34 @@ export function ExportConfigPanel({
 }: ExportConfigPanelProps) {
   return (
     <div className="export-config-panel">
-      {/* Resumen */}
+      {/* Summary */}
       <p className="export-config-panel__summary">
         <span className="export-config-panel__summary-count">
           {selectedCount}
         </span>{' '}
-        {selectedCount === 1 ? 'ícono seleccionado' : 'íconos seleccionados'}
+        {messages.exportConfigPanel.summary.selected(selectedCount)}
       </p>
 
-      {/* Nombre del export */}
+      {/* Export name */}
       <div className="export-config-panel__section">
-        <p className="export-config-panel__section-title">Nombre del archivo</p>
+        <p className="export-config-panel__section-title">
+          {messages.exportConfigPanel.sections.fileName}
+        </p>
         <input
           type="text"
           className="export-config-input"
           value={zipName}
           onChange={e => onZipNameChange(e.target.value)}
-          placeholder="icons"
+          placeholder={messages.exportConfigPanel.placeholders.zipName}
           spellCheck={false}
         />
       </div>
 
-      {/* Formato de exportación */}
+      {/* Export format */}
       <div className="export-config-panel__section">
-        <p className="export-config-panel__section-title">Formato</p>
+        <p className="export-config-panel__section-title">
+          {messages.exportConfigPanel.sections.format}
+        </p>
         <div className="export-config-panel__options">
           {EXPORT_FORMAT_OPTIONS.map(option => (
             <button
@@ -150,16 +185,16 @@ export function ExportConfigPanel({
               onChange={e => onIncludeTypesChange(e.target.checked)}
             />
             <span className="export-config-toggle__label">
-              Incluir definición de tipos (Props interface)
+              {messages.exportConfigPanel.toggles.includeTypes}
             </span>
           </label>
         )}
       </div>
 
-      {/* Estructura de archivos */}
+      {/* File structure */}
       <div className="export-config-panel__section">
         <p className="export-config-panel__section-title">
-          Estructura de archivos
+          {messages.exportConfigPanel.sections.fileStructure}
         </p>
         <div className="export-config-panel__options">
           {FILE_STRUCTURE_OPTIONS.map(option => (
@@ -178,10 +213,10 @@ export function ExportConfigPanel({
         </div>
       </div>
 
-      {/* Modo de color */}
+      {/* Color mode */}
       <div className="export-config-panel__section">
         <p className="export-config-panel__section-title">
-          Tratamiento de color
+          {messages.exportConfigPanel.sections.colorHandling}
         </p>
         <div className="export-config-panel__options">
           {COLOR_MODE_OPTIONS.map(option => (
@@ -200,10 +235,10 @@ export function ExportConfigPanel({
         </div>
       </div>
 
-      {/* Convención de nombres */}
+      {/* Naming convention */}
       <div className="export-config-panel__section">
         <p className="export-config-panel__section-title">
-          Convención de nombres
+          {messages.exportConfigPanel.sections.namingConvention}
         </p>
         <div className="export-config-panel__naming-grid">
           {NAMING_OPTIONS.map(option => (

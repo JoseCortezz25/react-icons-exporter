@@ -1,6 +1,7 @@
 import type { DetectedIcon } from '@common/iconDetection.types';
 import { MiniStatChip } from '@ui/components/atoms/mini-stat-chip';
 import { DetectedIconItem } from '@ui/components/molecules/detected-icon-item';
+import { messages } from '@ui/messages';
 
 type DetectedIconsPanelProps = {
   icons: DetectedIcon[];
@@ -18,14 +19,20 @@ export function DetectedIconsPanel({
   return (
     <section className="detected-icons-panel">
       <div className="detected-icons-panel__stats">
-        <MiniStatChip label="Íconos detectados" value={icons.length} />
-        <MiniStatChip label="Dentro de grupo" value={groupedCount} />
+        <MiniStatChip
+          label={messages.detectedIconsPanel.stats.detectedIcons}
+          value={icons.length}
+        />
+        <MiniStatChip
+          label={messages.detectedIconsPanel.stats.inGroup}
+          value={groupedCount}
+        />
       </div>
 
       <div className="detected-icons-panel__list">
         {icons.length === 0 && (
           <p className="detected-icons-panel__empty">
-            No se detectaron íconos en este modo.
+            {messages.detectedIconsPanel.emptyState}
           </p>
         )}
 
