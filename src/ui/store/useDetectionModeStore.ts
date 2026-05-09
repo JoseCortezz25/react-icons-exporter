@@ -22,7 +22,7 @@ export type NamingConvention =
 export type ExportFormat = 'svg' | 'typescript' | 'javascript';
 
 type DetectionModeState = {
-  mode: DetectionMode | null;
+  mode: DetectionMode;
   step: DetectionStep;
   detectedIcons: DetectedIcon[];
   groupedCount: number;
@@ -52,7 +52,7 @@ type DetectionModeState = {
 };
 
 export const useDetectionModeStore = create<DetectionModeState>(set => ({
-  mode: null,
+  mode: 'selection',
   step: 'initial',
   detectedIcons: [],
   groupedCount: 0,
@@ -104,7 +104,7 @@ export const useDetectionModeStore = create<DetectionModeState>(set => ({
   setZipName: value => set({ zipName: value }),
   reset: () =>
     set({
-      mode: null,
+      mode: 'selection',
       step: 'initial',
       detectedIcons: [],
       groupedCount: 0,
