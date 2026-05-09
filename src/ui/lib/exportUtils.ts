@@ -181,16 +181,53 @@ function generateSvgSprite(
   return `<svg xmlns="http://www.w3.org/2000/svg" style="display:none">\n${symbols}\n</svg>\n`;
 }
 
-function generateBarrelFile(
-  componentNames: string[],
-  format: 'typescript' | 'javascript'
+function generateSingleTsxFile(
+  components: Array<{ name: string; svgContent: string }>,
+  includeTypes: boolean
 ): string {
-  const ext = format === 'typescript' ? '.tsx' : '.jsx';
-  return (
-    componentNames
-      .map(name => `export { default as ${name} } from './${name}${ext}';`)
-      .join('\n') + '\n'
-  );
+  const parts = components.map(({ name, svgContent }) => {
+    const viewBox = extractViewBox(svgContent);
+    const inner = extractInnerSvg(svgContent);
+    const propsType = includeTypes
+      ? `\ninterface ${name}Props extends React.SVGProps<SVGSVGElement> {}\n`
+      : '';
+    const propsAnnotation = includeTypes ? `: React.FC<${name}Props>` : '';
+
+    return `${propsType}export const ${name}${propsAnnotation} = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="${viewBox}"
+    fill="currentColor"
+    {...props}
+  >
+    ${inner}
+  </svg>
+);`;
+  });
+
+  return `import React from 'react';\n\n${parts.join('\n\n')}\n`;
+}
+
+function generateSingleJsxFile(
+  components: Array<{ name: string; svgContent: string }>
+): string {
+  const parts = components.map(({ name, svgContent }) => {
+    const viewBox = extractViewBox(svgContent);
+    const inner = extractInnerSvg(svgContent);
+
+    return `export const ${name} = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="${viewBox}"
+    fill="currentColor"
+    {...props}
+  >
+    ${inner}
+  </svg>
+);`;
+  });
+
+  return `import React from 'react';\n\n${parts.join('\n\n')}\n`;
 }
 
 // ── Main export function ──────────────────────────────────────────────────────
@@ -230,43 +267,40 @@ export function generateExportFiles(
   }
 
   if (exportFormat === 'typescript') {
-    const componentFiles: ExportFile[] = processed.map(p => ({
+    if (fileStructure === 'single-file') {
+      return [
+        {
+          filename: 'icons.tsx',
+          content: generateSingleTsxFile(
+            processed.map(p => ({ name: p.baseName, svgContent: p.svgContent })),
+            includeTypes
+          )
+        }
+      ];
+    }
+
+    return processed.map(p => ({
       filename: `${p.baseName}.tsx`,
       content: generateTsxComponent(p.baseName, p.svgContent, includeTypes)
     }));
-
-    if (fileStructure === 'single-file') {
-      const barrel: ExportFile = {
-        filename: 'index.ts',
-        content: generateBarrelFile(
-          processed.map(p => p.baseName),
-          'typescript'
-        )
-      };
-      return [...componentFiles, barrel];
-    }
-
-    return componentFiles;
   }
 
   // javascript
-  const componentFiles: ExportFile[] = processed.map(p => ({
+  if (fileStructure === 'single-file') {
+    return [
+      {
+        filename: 'icons.jsx',
+        content: generateSingleJsxFile(
+          processed.map(p => ({ name: p.baseName, svgContent: p.svgContent }))
+        )
+      }
+    ];
+  }
+
+  return processed.map(p => ({
     filename: `${p.baseName}.jsx`,
     content: generateJsxComponent(p.baseName, p.svgContent)
   }));
-
-  if (fileStructure === 'single-file') {
-    const barrel: ExportFile = {
-      filename: 'index.js',
-      content: generateBarrelFile(
-        processed.map(p => p.baseName),
-        'javascript'
-      )
-    };
-    return [...componentFiles, barrel];
-  }
-
-  return componentFiles;
 }
 
 // ── Zip download ──────────────────────────────────────────────────────────────
